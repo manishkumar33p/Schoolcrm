@@ -1,0 +1,3 @@
+import React from 'react';
+import ModulePage from '../components/ModulePage';
+export default function Page(){return <ModulePage title='School Settings' subtitle='School profile and academic year preferences.' storage='notices' columns={[{key:'title',label:'NOTICE'},{key:'date',label:'DATE'},{key:'audience',label:'AUDIENCE'},{key:'message',label:'MESSAGE'}]} fields={[{name:'title',label:'Notice title',type:'text'},{name:'date',label:'Date',type:'date'},{name:'audience',label:'Audience',type:'select',options:['All Parents', 'All Students', 'All Staff']},{name:'message',label:'Message',type:'text'}]} />}

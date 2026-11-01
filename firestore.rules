@@ -1,0 +1,25 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() { return request.auth != null; }
+    function sameSchool(schoolId) { return signedIn() && request.auth.token.schoolId == schoolId; }
+    function manager(schoolId) { return sameSchool(schoolId) && request.auth.token.role in ['School Admin', 'Principal']; }
+    function staff(schoolId) { return sameSchool(schoolId) && request.auth.token.role in ['School Admin', 'Principal', 'Teacher']; }
+    match /users/{uid} {
+      allow read: if signedIn() && (request.auth.uid == uid || request.auth.token.platformAdmin == true || (resource.data.schoolId != null && resource.data.schoolId == request.auth.token.schoolId && request.auth.token.role in ['School Admin','Principal']));
+      allow update: if signedIn() && request.auth.uid == uid && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['mustChangePassword','passwordChangedAt']);
+      allow create, delete: if false;
+    }
+    match /schools/{schoolId} {
+      allow read: if sameSchool(schoolId) || (signedIn() && request.auth.token.platformAdmin == true);
+      allow create, update, delete: if false;
+      match /{collectionName}/{recordId} {
+        allow read, write: if manager(schoolId);
+        allow read: if staff(schoolId) && collectionName in ['students','classes','timetable','notices','attendance','admissions'];
+        allow create, update: if sameSchool(schoolId) && request.auth.token.role == 'Teacher' && collectionName in ['attendance','workspace','assignments'];
+        allow read: if sameSchool(schoolId) && request.auth.token.role == 'Parent' && resource.data.parentUid == request.auth.uid;
+        allow read: if sameSchool(schoolId) && request.auth.token.role == 'Student' && resource.data.studentUid == request.auth.uid;
+      }
+    }
+  }
+}

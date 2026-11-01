@@ -1,0 +1,8 @@
+import React,{useState} from 'react';
+import {LockKeyhole,ShieldCheck} from 'lucide-react';
+import {updateUser,setCurrentSession} from '../data/firestore';
+export default function FirstLoginPassword({user,onComplete,onLogout}){
+ const [password,setPassword]=useState(''),[confirm,setConfirm]=useState(''),[error,setError]=useState(''),[busy,setBusy]=useState(false);
+ const submit=e=>{e.preventDefault();setError('');if(password.length<8){setError('Password must contain at least 8 characters.');return}if(password!==confirm){setError('Passwords do not match.');return}setBusy(true);try{const updated={...user,password,mustChangePassword:false};updateUser(user.uid,{password,mustChangePassword:false});setCurrentSession(updated);onComplete(updated)}catch(err){setError(err.message||'Could not save password.')}finally{setBusy(false)}};
+ return <div className="first-password"><form className="login-card" onSubmit={submit}><div className="login-icon"><LockKeyhole/></div><small>FIRST SIGN-IN SECURITY</small><h2>Create your password</h2><p>Welcome to {user.schoolName||'your school'}. Replace your temporary password to continue.</p><label>New password<input type="password" value={password} onChange={e=>setPassword(e.target.value)} required minLength="8" autoComplete="new-password"/></label><label>Confirm new password<input type="password" value={confirm} onChange={e=>setConfirm(e.target.value)} required autoComplete="new-password"/></label>{error&&<div className="login-error">{error}</div>}<button disabled={busy} className="btn-primary login-submit"><ShieldCheck size={16}/>{busy?'Saving…':'Save password & continue'}</button><button type="button" className="btn-light" onClick={onLogout}>Sign out</button></form></div>
+}
