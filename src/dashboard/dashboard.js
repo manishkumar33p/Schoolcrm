@@ -1,5 +1,5 @@
 import React,{useEffect,useState} from 'react';
-import {GraduationCap,Users,Wallet,CalendarCheck,Plus,ArrowUpRight,ClipboardList,UserRoundCheck} from 'lucide-react';
+import {GraduationCap,Users,Wallet,Plus,ArrowUpRight,ClipboardList,UserRoundCheck} from 'lucide-react';
 import {money} from '../data/store';import {auth} from '../firebase';import {getProfile,listRecords} from '../data/firestore';
 export default function Dashboard({go}){
  const [data,setData]=useState({students:[],staff:[],fees:[],admissions:[],attendance:[]});const [schoolName,setSchoolName]=useState('Your School');
